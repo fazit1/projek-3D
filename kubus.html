@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taman 3D dengan Kontrol Mouse dan Keyboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+    body { margin: 0; }
+    canvas { display: block; }
+</style>
+</head>
+<body>
+<script>
+    // Inisialisasi Three.js
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Membuat kursi taman
+    const chair = new THREE.Group(); // Kursi terdiri dari beberapa bagian, sehingga kita menggunakan Group
+
+    // Bagian dudukan
+    const seatGeometry = new THREE.BoxGeometry(1, 0.1, 1.5);
+    const seatMaterial = new THREE.MeshBasicMaterial({ color: 0x964B00 });
+    const seat = new THREE.Mesh(seatGeometry, seatMaterial);
+    chair.add(seat); // Menambahkan dudukan ke dalam kursi
+
+    // Bagian sandaran
+    const backGeometry = new THREE.BoxGeometry(1, 1, 0.1);
+    const backMaterial = new THREE.MeshBasicMaterial({ color: 0x964B00 });
+    const back = new THREE.Mesh(backGeometry, backMaterial);
+    back.position.set(0, 0.55, -0.75); // Menyesuaikan posisi sandaran
+    chair.add(back); // Menambahkan sandaran ke dalam kursi
+
+    // Bagian kaki kursi
+    const legGeometry = new THREE.BoxGeometry(0.1, 0.5, 0.1);
+    const legMaterial = new THREE.MeshBasicMaterial({ color: 0x964B00 });
+    const leg1 = new THREE.Mesh(legGeometry, legMaterial);
+    const leg2 = new THREE.Mesh(legGeometry, legMaterial);
+    const leg3 = new THREE.Mesh(legGeometry, legMaterial);
+    const leg4 = new THREE.Mesh(legGeometry, legMaterial);
+    leg1.position.set(-0.4, -0.25, 0.4);
+    leg2.position.set(0.4, -0.25, 0.4);
+    leg3.position.set(-0.4, -0.25, -0.4);
+    leg4.position.set(0.4, -0.25, -0.4);
+    chair.add(leg1, leg2, leg3, leg4); // Menambahkan kaki kursi ke dalam kursi
+
+    scene.add(chair); // Menambahkan kursi ke dalam scene
+
+    // Menambahkan lampu
+    const light = new THREE.PointLight(0xffffff, 1, 100);
+    light.position.set(0, 10, 0); // Menempatkan lampu di atas kursi
+    scene.add(light);
+
+    // Menentukan posisi awal kamera
+    camera.position.y = 2;
+    camera.position.z = 7;
+    
+   
+    let isDragging = false;
+    let previousMousePosition = {
+        x: 0,
+        y: 0
+    };
+
+    function onMouseMove(event) {
+        const deltaMove = {
+            x: event.clientX - previousMousePosition.x,
+            y: event.clientY - previousMousePosition.y
+        };
+
+        if (isDragging) {
+            const deltaRotationQuaternion = new THREE.Quaternion()
+                .setFromEuler(new THREE.Euler(
+                    toRadians(deltaMove.y * 1),
+                    toRadians(deltaMove.x * 1),
+                    0,
+                    'XYZ'
+                ));
+
+            camera.quaternion.multiplyQuaternions(deltaRotationQuaternion, camera.quaternion);
+        }
+
+        previousMousePosition = {
+            x: event.clientX,
+            y: event.clientY
+        };
+    }
+
+    function onMouseDown(event) {
+        isDragging = true;
+    }
+
+    function onMouseUp(event) {
+        isDragging = false;
+    }
+
+    function toRadians(degrees) {
+        return degrees * Math.PI / 180;
+    }
+
+    document.addEventListener('mousedown', onMouseDown, false);
+    document.addEventListener('mouseup', onMouseUp, false);
+    document.addEventListener('mousemove', onMouseMove, false);
+
+    // Menambahkan event listener untuk keyboard
+    const keyState = {};
+
+    function onDocumentKeyDown(event) {
+        keyState[event.keyCode || event.which] = true;
+    }
+
+    function onDocumentKeyUp(event) {
+        keyState[event.keyCode || event.which] = false;
+    }
+
+    document.addEventListener('keydown', onDocumentKeyDown, false);
+    document.addEventListener('keyup', onDocumentKeyUp, false);
+
+    // Fungsi untuk merender animasi
+    function animate() {
+        requestAnimationFrame(animate);
+
+        // Menggerakkan kamera dengan keyboard
+        const moveSpeed = 0.1;
+        if (keyState[87]) { // W key
+            camera.position.z -= moveSpeed;
+        }
+        if (keyState[83]) { // S key
+            camera.position.z += moveSpeed;
+        }
+        if (keyState[65]) { // A key
+            camera.position.x -= moveSpeed;
+        }
+        if (keyState[68]) { // D key
+            camera.position.x += moveSpeed;
+        }
+        if (keyState[81]) { // Q key
+            camera.position.y += moveSpeed;
+        }
+        if (keyState[69]) { // E key
+            camera.position.y -= moveSpeed;
+        }
+
+        renderer.render(scene, camera);
+    }
+    animate();
+</script>
+</body>
+</html>
