@@ -20,33 +20,47 @@
     document.body.appendChild(renderer.domElement);
 
     // Membuat kursi taman
-    const chair = new THREE.Group(); 
+    const chair = new THREE.Group();
 
     // Bagian dudukan
-    const seatGeometry = new THREE.BoxGeometry(1, 0.1, 1.5);
-    const seatMaterial = new THREE.MeshBasicMaterial({ color: 0x964B00 });
+    const seatGeometry = new THREE.BoxGeometry(5, 0.2, 2);
+    const seatMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Warna putih
     const seat = new THREE.Mesh(seatGeometry, seatMaterial);
     chair.add(seat);
 
+    // Tambahkan bantalan dudukan
+    const seatCushionGeometry = new THREE.BoxGeometry(5, 0.1, 2);
+    const seatCushionMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Warna putih
+    const seatCushion = new THREE.Mesh(seatCushionGeometry, seatCushionMaterial);
+    seatCushion.position.set(0, 0.15, 0);
+    chair.add(seatCushion);
+
     // Bagian sandaran
-    const backGeometry = new THREE.BoxGeometry(1, 1, 0.1);
-    const backMaterial = new THREE.MeshBasicMaterial({ color: 0x964B00 });
+    const backGeometry = new THREE.BoxGeometry(5, 1.5, 0.2);
+    const backMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Warna putih
     const back = new THREE.Mesh(backGeometry, backMaterial);
-    back.position.set(0, 0.55, -0.75);
-    chair.add(back); 
-    
+    back.position.set(0, 0.75, -1);
+    chair.add(back);
+
+    // Tambahkan bantalan sandaran
+    const backCushionGeometry = new THREE.BoxGeometry(5, 1.2, 0.1);
+    const backCushionMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Warna putih
+    const backCushion = new THREE.Mesh(backCushionGeometry, backCushionMaterial);
+    backCushion.position.set(0, 0.75, -0.9);
+    chair.add(backCushion);
+
     // Bagian kaki kursi
-    const legGeometry = new THREE.BoxGeometry(0.1, 0.5, 0.1);
-    const legMaterial = new THREE.MeshBasicMaterial({ color: 0x964B00 });
+    const legGeometry = new THREE.BoxGeometry(0.2, 1, 0.2);
+    const legMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Warna putih
     const leg1 = new THREE.Mesh(legGeometry, legMaterial);
     const leg2 = new THREE.Mesh(legGeometry, legMaterial);
     const leg3 = new THREE.Mesh(legGeometry, legMaterial);
     const leg4 = new THREE.Mesh(legGeometry, legMaterial);
-    leg1.position.set(-0.4, -0.25, 0.4);
-    leg2.position.set(0.4, -0.25, 0.4);
-    leg3.position.set(-0.4, -0.25, -0.4);
-    leg4.position.set(0.4, -0.25, -0.4);
-    chair.add(leg1, leg2, leg3, leg4); 
+    leg1.position.set(-2.4, -0.5, 0.7);
+    leg2.position.set(2.4, -0.5, 0.7);
+    leg3.position.set(-2.4, -0.5, -0.7);
+    leg4.position.set(2.4, -0.5, -0.7);
+    chair.add(leg1, leg2, leg3, leg4);
 
     scene.add(chair); // Menambahkan kursi ke dalam scene
 
