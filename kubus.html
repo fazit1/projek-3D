@@ -19,39 +19,31 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
+    // Muat tekstur
+    const textureLoader = new THREE.TextureLoader();
+    const woodTexture = textureLoader.load('kayu.jpg'); 
+    const rockTexture = textureLoader.load('batu.jpg');
+    const roadTexture = textureLoader.load('setapak.jpg');
+
     // Membuat kursi taman
     const chair = new THREE.Group();
 
     // Bagian dudukan
-    const seatGeometry = new THREE.BoxGeometry(5, 0.2, 2);
-    const seatMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Warna putih
+    const seatGeometry = new THREE.BoxGeometry(5, 0.2, 1.7);
+    const seatMaterial = new THREE.MeshPhongMaterial({ map: woodTexture });
     const seat = new THREE.Mesh(seatGeometry, seatMaterial);
     chair.add(seat);
 
-    // Tambahkan bantalan dudukan
-    const seatCushionGeometry = new THREE.BoxGeometry(5, 0.1, 2);
-    const seatCushionMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Warna putih
-    const seatCushion = new THREE.Mesh(seatCushionGeometry, seatCushionMaterial);
-    seatCushion.position.set(0, 0.15, 0);
-    chair.add(seatCushion);
-
     // Bagian sandaran
     const backGeometry = new THREE.BoxGeometry(5, 1.5, 0.2);
-    const backMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Warna putih
+    const backMaterial = new THREE.MeshPhongMaterial({ map: woodTexture });
     const back = new THREE.Mesh(backGeometry, backMaterial);
-    back.position.set(0, 0.75, -1);
+    back.position.set(0, 0.75, -0.75);
     chair.add(back);
-
-    // Tambahkan bantalan sandaran
-    const backCushionGeometry = new THREE.BoxGeometry(5, 1.2, 0.1);
-    const backCushionMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Warna putih
-    const backCushion = new THREE.Mesh(backCushionGeometry, backCushionMaterial);
-    backCushion.position.set(0, 0.75, -0.9);
-    chair.add(backCushion);
 
     // Bagian kaki kursi
     const legGeometry = new THREE.BoxGeometry(0.2, 1, 0.2);
-    const legMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Warna putih
+    const legMaterial = new THREE.MeshPhongMaterial({ map: woodTexture });
     const leg1 = new THREE.Mesh(legGeometry, legMaterial);
     const leg2 = new THREE.Mesh(legGeometry, legMaterial);
     const leg3 = new THREE.Mesh(legGeometry, legMaterial);
@@ -64,27 +56,69 @@
 
     scene.add(chair); // Menambahkan kursi ke dalam scene
 
-    // Menambahkan lampu
-    const light = new THREE.PointLight(0xffffff, 1, 100);
-    light.position.set(0, 10, 0); // Menempatkan lampu di atas kursi
-    scene.add(light);
+    const groundGeometry = new THREE.BoxGeometry(20, 20, 0.3);
+    const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x22D422});
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.position.set(1, -0.8, 0);
+    ground.rotation.x = -Math.PI / 2;
+    scene.add(ground);
+
+    const ground2Geometry = new THREE.BoxGeometry(20, 20, 1);
+    const ground2Material = new THREE.MeshBasicMaterial({ color: 0x7F6000 });
+    const ground2 = new THREE.Mesh(ground2Geometry, ground2Material);
+    ground2.position.set(1, -1.2, 0);
+    ground2.rotation.x = -Math.PI / 2;
+    scene.add(ground2);
+
+    const walkGeometry = new THREE.BoxGeometry(19.8, 4, 0.3);
+    const walkMaterial = new THREE.MeshBasicMaterial({ map: roadTexture});
+    const walk = new THREE.Mesh(walkGeometry, walkMaterial);
+    walk.position.set(1, -0.79, 5);
+    walk.rotation.x = -Math.PI / 2;
+    scene.add(walk);
+
+    var largeGeometry = new THREE.DodecahedronGeometry(1, 0);
+    var largeMaterial = new THREE.MeshPhongMaterial({ map : rockTexture}); // Brown color
+    var largeDodecahedron = new THREE.Mesh(largeGeometry, largeMaterial);
+    largeDodecahedron.position.set(-4.5, -0.5, 0);
+    scene.add(largeDodecahedron);
+
+    // Membuat tiang lampu
+    const tiangGeometry = new THREE.CylinderGeometry(0.05, 0.05, 4, 32);
+    const tiangMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, metalness: 0.5, roughness: 0.5 });
+    const tiangLampu = new THREE.Mesh(tiangGeometry, tiangMaterial);
+    tiangLampu.position.set(4, 0, 0);
+    scene.add(tiangLampu);
+
+    // Membuat lampu
+    const lampuGeometry = new THREE.SphereGeometry(0.3, 32, 32);
+    const lampuMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, emissive: 0xFFFFFF, emissiveIntensity: 1 });
+    const lampu = new THREE.Mesh(lampuGeometry, lampuMaterial);
+    lampu.position.set(4, 2, 0);
+    scene.add(lampu);
+    
+    // Menambahkan cahaya
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(5, 2, 0);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+
+    const ambientLight = new THREE.AmbientLight(0x222222);
+    scene.add(ambientLight);
+
+    const pointLight = new THREE.PointLight(0xffffff, 2, 100);
+    pointLight.position.set(5, 2, 0);
+    scene.add(pointLight);
 
     // Menentukan posisi awal kamera
     camera.position.y = 2;
     camera.position.z = 7;
-    
-   
+
     let isDragging = false;
-    let previousMousePosition = {
-        x: 0,
-        y: 0
-    };
+    let previousMousePosition = { x: 0, y: 0 };
 
     function onMouseMove(event) {
-        const deltaMove = {
-            x: event.clientX - previousMousePosition.x,
-            y: event.clientY - previousMousePosition.y
-        };
+        const deltaMove = { x: event.clientX - previousMousePosition.x, y: event.clientY - previousMousePosition.y };
 
         if (isDragging) {
             const deltaRotationQuaternion = new THREE.Quaternion()
@@ -98,10 +132,7 @@
             camera.quaternion.multiplyQuaternions(deltaRotationQuaternion, camera.quaternion);
         }
 
-        previousMousePosition = {
-            x: event.clientX,
-            y: event.clientY
-        };
+        previousMousePosition = { x: event.clientX, y: event.clientY };
     }
 
     function onMouseDown(event) {
@@ -134,11 +165,9 @@
     document.addEventListener('keydown', onDocumentKeyDown, false);
     document.addEventListener('keyup', onDocumentKeyUp, false);
 
-    // Fungsi untuk merender animasi
     function animate() {
         requestAnimationFrame(animate);
-
-        // Menggerakkan kamera dengan keyboard
+        
         const moveSpeed = 0.1;
         if (keyState[87]) { // W key
             camera.position.z -= moveSpeed;
