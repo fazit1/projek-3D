@@ -17,31 +17,31 @@
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true; // Mengaktifkan bayangan pada renderer
     document.body.appendChild(renderer.domElement);
 
-    // Muat tekstur
+    
     const textureLoader = new THREE.TextureLoader();
     const woodTexture = textureLoader.load('kayu.jpg'); 
     const rockTexture = textureLoader.load('batu.jpg');
     const roadTexture = textureLoader.load('setapak.jpg');
+    const pohonTexure = textureLoader.load('pohon.jpg');
 
-    // Membuat kursi taman
     const chair = new THREE.Group();
 
-    // Bagian dudukan
     const seatGeometry = new THREE.BoxGeometry(5, 0.2, 1.7);
     const seatMaterial = new THREE.MeshPhongMaterial({ map: woodTexture });
     const seat = new THREE.Mesh(seatGeometry, seatMaterial);
+    seat.castShadow = true; 
     chair.add(seat);
 
-    // Bagian sandaran
     const backGeometry = new THREE.BoxGeometry(5, 1.5, 0.2);
     const backMaterial = new THREE.MeshPhongMaterial({ map: woodTexture });
     const back = new THREE.Mesh(backGeometry, backMaterial);
     back.position.set(0, 0.75, -0.75);
+    back.castShadow = true; 
     chair.add(back);
 
-    // Bagian kaki kursi
     const legGeometry = new THREE.BoxGeometry(0.2, 1, 0.2);
     const legMaterial = new THREE.MeshPhongMaterial({ map: woodTexture });
     const leg1 = new THREE.Mesh(legGeometry, legMaterial);
@@ -52,55 +52,105 @@
     leg2.position.set(2.4, -0.5, 0.7);
     leg3.position.set(-2.4, -0.5, -0.7);
     leg4.position.set(2.4, -0.5, -0.7);
+    leg1.castShadow = true; 
+    leg2.castShadow = true; 
+    leg3.castShadow = true; 
+    leg4.castShadow = true; 
     chair.add(leg1, leg2, leg3, leg4);
 
-    scene.add(chair); // Menambahkan kursi ke dalam scene
+    scene.add(chair); 
 
-    const groundGeometry = new THREE.BoxGeometry(20, 20, 0.3);
-    const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x22D422});
+    const groundGeometry = new THREE.PlaneGeometry(20, 20);
+    const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x22D422 });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.position.set(1, -0.8, 0);
+    ground.position.set(0, -1, 0);
     ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true; 
     scene.add(ground);
 
-    const ground2Geometry = new THREE.BoxGeometry(20, 20, 1);
-    const ground2Material = new THREE.MeshBasicMaterial({ color: 0x7F6000 });
+    const ground2Geometry = new THREE.BoxGeometry(20, 20, 0.3);
+    const ground2Material = new THREE.MeshStandardMaterial({ color: 0x7F6000 });
     const ground2 = new THREE.Mesh(ground2Geometry, ground2Material);
-    ground2.position.set(1, -1.2, 0);
+    ground2.position.set(0, -1.2, 0);
     ground2.rotation.x = -Math.PI / 2;
+    ground2.receiveShadow = true; 
     scene.add(ground2);
 
     const walkGeometry = new THREE.BoxGeometry(19.8, 4, 0.3);
-    const walkMaterial = new THREE.MeshBasicMaterial({ map: roadTexture});
+    const walkMaterial = new THREE.MeshStandardMaterial({ map: roadTexture });0x7F6000
     const walk = new THREE.Mesh(walkGeometry, walkMaterial);
-    walk.position.set(1, -0.79, 5);
+    walk.position.set(0, -1.1, 5);
     walk.rotation.x = -Math.PI / 2;
+    walk.receiveShadow = true;
     scene.add(walk);
 
-    var largeGeometry = new THREE.DodecahedronGeometry(1, 0);
-    var largeMaterial = new THREE.MeshPhongMaterial({ map : rockTexture}); // Brown color
-    var largeDodecahedron = new THREE.Mesh(largeGeometry, largeMaterial);
+    const largeGeometry = new THREE.DodecahedronGeometry(1, 0);
+    const largeMaterial = new THREE.MeshPhongMaterial({ map: rockTexture }); 
+    const largeDodecahedron = new THREE.Mesh(largeGeometry, largeMaterial);
     largeDodecahedron.position.set(-4.5, -0.5, 0);
+    largeDodecahedron.castShadow = true; 
     scene.add(largeDodecahedron);
-
-    // Membuat tiang lampu
+    
     const tiangGeometry = new THREE.CylinderGeometry(0.05, 0.05, 4, 32);
     const tiangMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, metalness: 0.5, roughness: 0.5 });
     const tiangLampu = new THREE.Mesh(tiangGeometry, tiangMaterial);
     tiangLampu.position.set(4, 0, 0);
+    tiangLampu.castShadow = true; 
     scene.add(tiangLampu);
 
-    // Membuat lampu
     const lampuGeometry = new THREE.SphereGeometry(0.3, 32, 32);
     const lampuMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, emissive: 0xFFFFFF, emissiveIntensity: 1 });
     const lampu = new THREE.Mesh(lampuGeometry, lampuMaterial);
     lampu.position.set(4, 2, 0);
+    lampu.castShadow = true; 
     scene.add(lampu);
+
+    const createTree = (x, z) => {
+        const tree = new THREE.Group();
+
+        // Trunk
+        const trunkGeometry = new THREE.CylinderGeometry(0.6, 0.6, 5, 32);
+        const trunkMaterial = new THREE.MeshStandardMaterial({ map: pohonTexure});
+        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+        trunk.position.set(0, 0.5, 0);
+        trunk.castShadow = true;
+        trunk.receiveShadow = true;
+        tree.add(trunk);
+
+        // Leaves
+        const leavesMaterial = new THREE.MeshStandardMaterial({ color: 0x228B22 });
+
+        const coneGeometry1 = new THREE.ConeGeometry(2, 2, 32);
+        const cone1 = new THREE.Mesh(coneGeometry1, leavesMaterial);
+        cone1.position.set(0, 2.2, 0);
+        cone1.castShadow = true;
+        cone1.receiveShadow = true;
+        tree.add(cone1);
+
+        const coneGeometry2 = new THREE.ConeGeometry(2, 2, 32);
+        const cone2 = new THREE.Mesh(coneGeometry2, leavesMaterial);
+        cone2.position.set(0, 3.5, 0);
+        cone2.castShadow = true;
+        cone2.receiveShadow = true;
+        tree.add(cone2);
+
+        const coneGeometry3 = new THREE.ConeGeometry(2, 2, 32);
+        const cone3 = new THREE.Mesh(coneGeometry3, leavesMaterial);
+        cone3.position.set(0, 4.8, 0);
+        cone3.castShadow = true;
+        cone3.receiveShadow = true;
+        tree.add(cone3);
+
+        tree.position.set(x, 0, z);
+        scene.add(tree);
+    };
+
+    createTree(6, -5);
+
     
-    // Menambahkan cahaya
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight.position.set(5, 2, 0);
-    directionalLight.castShadow = true;
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(5, 10, 0);
+    directionalLight.castShadow = true; 
     scene.add(directionalLight);
 
     const ambientLight = new THREE.AmbientLight(0x222222);
@@ -108,9 +158,9 @@
 
     const pointLight = new THREE.PointLight(0xffffff, 2, 100);
     pointLight.position.set(5, 2, 0);
-    scene.add(pointLight);
+    pointLight.castShadow = true; 
+    scene.add(pointLight);  
 
-    // Menentukan posisi awal kamera
     camera.position.y = 2;
     camera.position.z = 7;
 
